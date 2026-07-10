@@ -203,12 +203,12 @@ export function Sidebar({
           {/* Performance: Use native scroll on mobile, Radix ScrollArea on desktop */}
           {isMobile ? (
             // Native scroll - smoother on mobile
-            <div className="flex-1 px-2 sm:px-3 overflow-y-auto scroll-smooth-native touch-manipulation">
+            <div className="flex-1 min-h-0 px-2 sm:px-3 overflow-y-auto scroll-smooth-native touch-manipulation">
               {historyContent}
             </div>
           ) : (
             // Radix ScrollArea - custom scrollbar on desktop
-            <ScrollArea className="flex-1 px-2 sm:px-3">
+            <ScrollArea className="flex-1 h-full px-2 sm:px-3">
               {historyContent}
             </ScrollArea>
           )}
