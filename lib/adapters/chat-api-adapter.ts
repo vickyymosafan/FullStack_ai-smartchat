@@ -12,6 +12,7 @@ import {
   getMessages,
   sendChatMessage,
   deleteChat,
+  deleteAllChats,
   renameChat,
 } from "@/lib/api/chat-service"
 
@@ -24,6 +25,7 @@ export const defaultChatApiAdapter: ChatApiAdapter = {
   getMessages,
   sendMessage: sendChatMessage,
   deleteChat,
+  deleteAllChats,
   renameChat,
 }
 
@@ -46,6 +48,7 @@ export const mockChatApiAdapter: ChatApiAdapter = {
     response: `Mock response to: ${message}`,
   }),
   deleteChat: async () => true,
+  deleteAllChats: async () => true,
   renameChat: async () => true,
 }
 
@@ -98,6 +101,14 @@ export const offlineChatApiAdapter: ChatApiAdapter = {
     const filtered = chats.filter((c: { id: string }) => c.id !== chatId)
     localStorage.setItem('offline-chats', JSON.stringify(filtered))
     localStorage.removeItem(`offline-messages-${chatId}`)
+    return true
+  },
+  deleteAllChats: async () => {
+    const chats = JSON.parse(localStorage.getItem('offline-chats') || '[]')
+    chats.forEach((c: { id: string }) => {
+      localStorage.removeItem(`offline-messages-${c.id}`)
+    })
+    localStorage.removeItem('offline-chats')
     return true
   },
   renameChat: async (chatId, newTitle) => {

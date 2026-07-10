@@ -39,10 +39,12 @@ interface MobileNavProps {
 }
 
 export function MobileNav({ onOpenAbout }: MobileNavProps) {
-  const { chatHistories, currentChatId, createNewChat, selectChat, deleteChat } = useChat()
+  const { chatHistories, currentChatId, createNewChat, selectChat, deleteChat, deleteAllChats } = useChat()
   const [open, setOpen] = React.useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
   const [chatToDelete, setChatToDelete] = React.useState<string | null>(null)
+  const [deleteAllDialogOpen, setDeleteAllDialogOpen] = React.useState(false)
+  const [isDeletingAll, setIsDeletingAll] = React.useState(false)
 
   const handleDeleteClick = (chatId: string) => {
     setChatToDelete(chatId)
@@ -101,8 +103,21 @@ export function MobileNav({ onOpenAbout }: MobileNavProps) {
 
           {/* Chat History */}
           <div className="flex-1 overflow-hidden flex flex-col">
-            <div className="px-2 sm:px-3 py-1.5 sm:py-2">
+            <div className="px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-between">
               <h3 className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">Riwayat</h3>
+              {chatHistories.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setDeleteAllDialogOpen(true)}
+                  disabled={isDeletingAll}
+                  title="Hapus semua riwayat"
+                  className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  <Trash2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  <span className="sr-only">Hapus semua riwayat</span>
+                </Button>
+              )}
             </div>
             <ScrollArea className="flex-1 px-2 sm:px-3">
               <div className="space-y-0.5 sm:space-y-1 pb-4">
@@ -166,7 +181,7 @@ export function MobileNav({ onOpenAbout }: MobileNavProps) {
         </SheetContent>
       </Sheet>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Single Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -182,6 +197,36 @@ export function MobileNav({ onOpenAbout }: MobileNavProps) {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete All Confirmation Dialog */}
+      <AlertDialog open={deleteAllDialogOpen} onOpenChange={setDeleteAllDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Semua Riwayat?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Semua percakapan akan dihapus secara permanen dari database. Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                setDeleteAllDialogOpen(false)
+                setOpen(false)
+                setIsDeletingAll(true)
+                try {
+                  await deleteAllChats()
+                } finally {
+                  setIsDeletingAll(false)
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Hapus Semua
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -94,6 +94,11 @@ export function ChatProvider({
           messages.clearMessages()
         }
       },
+      deleteAllChats: async () => {
+        await chatHistory.deleteAllChats()
+        messages.clearMessages()
+        messages.clearError()
+      },
       renameChat: chatHistory.renameChat,
       refreshHistories: chatHistory.loadHistories,
 
@@ -146,6 +151,7 @@ export function useChatHistories() {
     createNewChat,
     selectChat,
     deleteChat,
+    deleteAllChats,
     renameChat,
     refreshHistories,
   } = useChat()
@@ -155,6 +161,7 @@ export function useChatHistories() {
     createNewChat,
     selectChat,
     deleteChat,
+    deleteAllChats,
     renameChat,
     refreshHistories,
   }

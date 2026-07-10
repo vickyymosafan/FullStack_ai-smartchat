@@ -68,6 +68,11 @@ export interface ChatApiAdapter {
   deleteChat: (chatId: string) => Promise<boolean>
 
   /**
+   * Delete all chats
+   */
+  deleteAllChats: () => Promise<boolean>
+
+  /**
    * Rename a chat
    */
   renameChat: (chatId: string, newTitle: string) => Promise<boolean>

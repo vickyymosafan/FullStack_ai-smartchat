@@ -116,6 +116,7 @@ export interface ChatHistoryState {
   createNewChat: () => void;
   selectChat: (id: string) => Promise<void>;
   deleteChat: (id: string) => Promise<void>;
+  deleteAllChats: () => Promise<void>;
   renameChat: (id: string, title: string) => Promise<void>;
   refreshHistories: () => Promise<void>;
 }

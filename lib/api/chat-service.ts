@@ -126,6 +126,19 @@ export async function deleteChat(chatId: string): Promise<boolean> {
 }
 
 /**
+ * Delete all chats
+ */
+export async function deleteAllChats(): Promise<boolean> {
+  try {
+    const response = await fetch(`/api/chats?deleteAll=true`, { method: "DELETE" })
+    return response.ok
+  } catch (error) {
+    console.error("Failed to delete all chats:", error)
+    return false
+  }
+}
+
+/**
  * Rename a chat
  */
 export async function renameChat(chatId: string, newTitle: string): Promise<boolean> {

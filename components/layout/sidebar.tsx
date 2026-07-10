@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useChat } from "@/components/providers/chat-provider"
-import { Plus, ChevronLeft, Info } from "lucide-react"
+import { Plus, ChevronLeft, Info, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { MusicPlayer } from "@/components/music/music-player"
 import { ChatHistoryItem } from "@/components/chat/chat-history-item"
@@ -110,7 +110,11 @@ export function Sidebar({
   const isMobile = useIsMobile()
   
   // DIP: Depend on abstraction (useChat hook)
-  const { chatHistories, currentChatId, createNewChat, selectChat, deleteChat, renameChat } = useChat()
+  const { chatHistories, currentChatId, createNewChat, selectChat, deleteChat, deleteAllChats, renameChat } = useChat()
+
+  // Delete-all loading state
+  const [isDeletingAll, setIsDeletingAll] = React.useState(false)
+  const [deleteAllDialogOpen, setDeleteAllDialogOpen] = React.useState(false)
 
   // SRP: Edit state managed by hook
   const editState = useEditableItem<string>({
@@ -196,8 +200,21 @@ export function Sidebar({
 
         {/* Chat History */}
         <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-          <div className="px-2 sm:px-3 py-1.5 sm:py-2">
+          <div className="px-2 sm:px-3 py-1.5 sm:py-2 flex items-center justify-between">
             <h3 className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">Riwayat</h3>
+            {chatHistories.length > 0 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setDeleteAllDialogOpen(true)}
+                disabled={isDeletingAll}
+                title="Hapus semua riwayat"
+                className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <Trash2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                <span className="sr-only">Hapus semua riwayat</span>
+              </Button>
+            )}
           </div>
           
           {/* Performance: Use native scroll on mobile, Radix ScrollArea on desktop */}
@@ -243,6 +260,24 @@ export function Sidebar({
         onConfirm={deleteDialog.confirm}
         title="Hapus Percakapan?"
         description="Tindakan ini tidak dapat dibatalkan. Percakapan ini akan dihapus secara permanen."
+      />
+
+      {/* Delete All Confirmation Dialog */}
+      <ConfirmDeleteDialog
+        open={deleteAllDialogOpen}
+        onOpenChange={(open) => !open && setDeleteAllDialogOpen(false)}
+        onConfirm={async () => {
+          setDeleteAllDialogOpen(false)
+          setIsDeletingAll(true)
+          try {
+            await deleteAllChats()
+          } finally {
+            setIsDeletingAll(false)
+          }
+        }}
+        title="Hapus Semua Riwayat?"
+        description="Semua percakapan akan dihapus secara permanen dari database. Tindakan ini tidak dapat dibatalkan."
+        confirmText="Hapus Semua"
       />
     </>
   )

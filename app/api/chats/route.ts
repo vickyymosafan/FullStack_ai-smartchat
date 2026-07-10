@@ -141,7 +141,41 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const supabase = getSupabaseServerClient()
   const chatId = request.nextUrl.searchParams.get("chatId")
+  const deleteAll = request.nextUrl.searchParams.get("deleteAll")
 
+  // ── DELETE ALL ──────────────────────────────────────────────
+  if (deleteAll === "true") {
+    try {
+      // Get all session IDs linked to chat_histories
+      const { data: allChats } = await supabase
+        .from("chat_histories")
+        .select("sessionId")
+
+      if (allChats && allChats.length > 0) {
+        const sessionIds = allChats.map((c) => c.sessionId)
+        // Delete all messages for those sessions
+        await supabase.from("messages").delete().in("sessionId", sessionIds)
+      }
+
+      // Delete all chat_histories
+      const { error } = await supabase
+        .from("chat_histories")
+        .delete()
+        .neq("id", "") // match all rows
+
+      if (error) {
+        console.error("Supabase error deleting all chats:", error)
+        return NextResponse.json({ error: "Failed to delete all chats" }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true })
+    } catch (error) {
+      console.error("Delete all chats error:", error)
+      return NextResponse.json({ error: "Failed to delete all chats" }, { status: 500 })
+    }
+  }
+
+  // ── DELETE SINGLE ────────────────────────────────────────────
   if (!chatId) {
     return NextResponse.json({ error: "Chat ID is required" }, { status: 400 })
   }

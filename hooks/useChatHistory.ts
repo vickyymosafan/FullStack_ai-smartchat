@@ -21,20 +21,22 @@ import {
   createChat as apiCreateChat,
   getChats as apiGetChats,
   deleteChat as apiDeleteChat,
+  deleteAllChats as apiDeleteAllChats,
   renameChat as apiRenameChat,
 } from "@/lib/api/chat-service"
 
-const defaultChatApi: Pick<ChatApiAdapter, 'createChat' | 'getChats' | 'deleteChat' | 'renameChat'> = {
+const defaultChatApi: Pick<ChatApiAdapter, 'createChat' | 'getChats' | 'deleteChat' | 'deleteAllChats' | 'renameChat'> = {
   createChat: apiCreateChat,
   getChats: apiGetChats,
   deleteChat: apiDeleteChat,
+  deleteAllChats: apiDeleteAllChats,
   renameChat: apiRenameChat,
 }
 
 interface UseChatHistoryOptions {
   sessionId: string
   isSessionReady: boolean
-  adapter?: Pick<ChatApiAdapter, 'createChat' | 'getChats' | 'deleteChat' | 'renameChat'>
+  adapter?: Pick<ChatApiAdapter, 'createChat' | 'getChats' | 'deleteChat' | 'deleteAllChats' | 'renameChat'>
 }
 
 interface ChatHistoryActions {
@@ -44,6 +46,7 @@ interface ChatHistoryActions {
   createChat: (title: string) => Promise<string>
   selectChat: (chatId: string) => void
   deleteChat: (chatId: string) => Promise<void>
+  deleteAllChats: () => Promise<void>
   renameChat: (chatId: string, newTitle: string) => Promise<void>
   createNewChat: () => void
   setCurrentChatId: (id: string | null) => void
@@ -104,6 +107,15 @@ export function useChatHistory(options: UseChatHistoryOptions): ChatHistoryActio
     }
   }, [currentChatId, adapter])
 
+  // Delete all chats
+  const deleteAllChats = React.useCallback(async () => {
+    const success = await adapter.deleteAllChats()
+    if (success) {
+      setChatHistories([])
+      setCurrentChatId(null)
+    }
+  }, [adapter])
+
   // Rename a chat
   const renameChat = React.useCallback(async (chatId: string, newTitle: string) => {
     const success = await adapter.renameChat(chatId, newTitle)
@@ -128,6 +140,7 @@ export function useChatHistory(options: UseChatHistoryOptions): ChatHistoryActio
     createChat,
     selectChat,
     deleteChat,
+    deleteAllChats,
     renameChat,
     createNewChat,
     setCurrentChatId,
