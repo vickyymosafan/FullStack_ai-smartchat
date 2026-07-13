@@ -1,11 +1,10 @@
 "use client"
 
 import Image from "next/image"
-import { SuggestedQuestions } from "./suggested-questions"
 
 export function WelcomeScreen() {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 text-center">
+    <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 text-center h-full">
       <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
         {/* Logo */}
         <div className="flex justify-center mb-3 sm:mb-4">
@@ -18,11 +17,6 @@ export function WelcomeScreen() {
           <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
             Mulai percakapan dengan AI untuk bantuan, saran, dan pertanyaan
           </p>
-        </div>
-
-        {/* Suggested Questions */}
-        <div className="pt-2 sm:pt-4">
-          <SuggestedQuestions />
         </div>
       </div>
     </div>
